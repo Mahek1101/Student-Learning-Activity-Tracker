@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Learning History | Student Learning Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+        }
+
+        header {
+            background-color: #263859;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #354f7a;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 85%;
+            margin: 30px auto;
+        }
+
+        .form-box, .table-box, .summary-box {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #263859;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            font-weight: bold;
+            color: #263859;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #263859;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #354f7a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #354f7a;
+            color: white;
+        }
+
+        .table-box {
+            overflow-x: auto;
+        }
+
+        .summary-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .summary-card {
+            flex: 1;
+            min-width: 180px;
+            background-color: #f4f6f9;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            color: #263859;
+            margin-bottom: 10px;
+        }
+
+        .summary-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #354f7a;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #777;
+            padding: 20px;
+        }
+
+        .custom-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .custom-select-button {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: white;
+            color: #263859;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            cursor: pointer;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-align: left;
+        }
+
+        .custom-select-button:hover {
+            border-color: #354f7a;
+        }
+
+        .custom-select-button:focus-visible {
+            outline: 2px solid #354f7a;
+            outline-offset: 2px;
+        }
+
+        .custom-select-options {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            width: 100%;
+            max-height: 230px;
+            overflow-y: auto;
+
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .custom-select-options.show {
+            display: block;
+        }
+
+        .custom-select-option {
+            padding: 12px 15px;
+            color: #263859;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .custom-select-option:hover {
+            background-color: #e8eef7;
+        }
+
+        .custom-select-option.selected {
+            background-color: #354f7a;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Learning History</h1>
+        <p>View Student Progress and Learning Activities</p>
+    </header>
+
+    <nav>
+        <a href="/">Dashboard</a>
+        <a href="/students">Students</a>
+        <a href="/courses">Courses</a>
+        <a href="/enrollments">Enrollments</a>
+        <a href="/activities">Learning Activities</a>
+        <a href="/history">Learning History</a>
+    </nav>
+
+    <div class="container">
+
+        <!-- Student Selection -->
+        <div class="form-box">
+
+            <h2>Select Student</h2>
+
+            <form action="/history" method="GET">
+
+                <label>Choose a Student</label>
+
+                <div class="custom-select" id="studentDropdown">
+
+                    <input type="hidden"
+                        name="student_id"
+                        id="selectedStudentId"
+                        value="{{ selected_student_id or '' }}">
+
+                    <button type="button"
+                            class="custom-select-button"
+                            id="studentDropdownButton"
+                            aria-expanded="false"
+                            aria-controls="studentOptions">
+
+                        <span id="selectedStudentText">
+                            {% for student in students %}
+                                {% if selected_student_id == student.student_id %}
+                                    {{ student.name }} (ID: {{ student.student_id }})
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if not selected_student_id %}
+                                -- Select Student --
+                            {% endif %}
+                        </span>
+
+                        <span>▼</span>
+                    </button>
+
+                    <div class="custom-select-options" id="studentOptions">
+
+                        {% for student in students %}
+                        <div class="custom-select-option"
+                            data-id="{{ student.student_id }}"
+                            data-name="{{ student.name }} (ID: {{ student.student_id }})">
+
+                            {{ student.name }} (ID: {{ student.student_id }})
+
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+                <button type="submit">View Learning History</button>
+
+            </form>
+
+        </div>
+
+        {% if selected_student_id is not none %}
+
+        <!-- Summary -->
+        <div class="summary-box">
+
+            <h2>Learning Summary</h2>
+
+            <div class="summary-container">
+
+                <div class="summary-card">
+                    <h3>Total Activities</h3>
+                    <p>{{ total_activities }}</p>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Total Study Time</h3>
+                    <p>{{ total_duration }} min</p>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Courses Studied</h3>
+                    <p>{{ total_courses }}</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Learning History -->
+        <div class="table-box">
+
+            <h2>Completed Learning Activities</h2>
+
+            <table>
+                <tr>
+                    <th>Activity ID</th>
+                    <th>Course</th>
+                    <th>Activity</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>Duration</th>
+                    <th>Description</th>
+                </tr>
+
+                {% for activity in activities %}
+                <tr>
+                    <td>{{ activity.activity_id }}</td>
+                    <td>{{ activity.course_name }}</td>
+                    <td>{{ activity.title }}</td>
+                    <td>{{ activity.activity_type }}</td>
+                    <td>{{ activity.activity_date }}</td>
+                    <td>{{ activity.duration }} min</td>
+                    <td>{{ activity.description }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="empty-message">
+                        No learning activities found for this student.
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+
+        </div>
+
+        {% endif %}
+
+    </div>
+
+<script>
+    const dropdown = document.getElementById("studentDropdown");
+    const dropdownButton = document.getElementById("studentDropdownButton");
+    const dropdownOptions = document.getElementById("studentOptions");
+    const selectedStudentInput = document.getElementById("selectedStudentId");
+    const selectedStudentText = document.getElementById("selectedStudentText");
+
+    // Open or close dropdown
+    dropdownButton.addEventListener("click", function () {
+        const isOpen = dropdownOptions.classList.toggle("show");
+        dropdownButton.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    // Select a student
+    document.querySelectorAll(".custom-select-option").forEach(function (option) {
+
+        if (option.dataset.id === selectedStudentInput.value) {
+            option.classList.add("selected");
+        }
+
+        option.addEventListener("click", function () {
+
+            selectedStudentInput.value = option.dataset.id;
+            selectedStudentText.textContent = option.dataset.name;
+
+            document.querySelectorAll(".custom-select-option").forEach(function (item) {
+                item.classList.remove("selected");
+            });
+
+            option.classList.add("selected");
+            dropdownOptions.classList.remove("show");
+            dropdownButton.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!dropdown.contains(event.target)) {
+            dropdownOptions.classList.remove("show");
+            dropdownButton.setAttribute("aria-expanded", "false");
+        }
+    });
+
+    // Prevent submitting without selecting a student
+    const historyForm = dropdown.closest("form");
+
+    historyForm.addEventListener("submit", function (event) {
+        if (!selectedStudentInput.value) {
+            event.preventDefault();
+            dropdownButton.focus();
+            dropdownButton.style.borderColor = "#c0392b";
+        }
+    });
+</script>
+
+</body>
+</html>

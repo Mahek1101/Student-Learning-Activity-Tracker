@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Enrollment | Student Learning Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+        }
+
+        header {
+            background-color: #263859;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #354f7a;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 15px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 85%;
+            margin: 30px auto;
+        }
+
+        .form-box, .table-box {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            font-weight: bold;
+            color: #263859;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #263859;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #354f7a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #354f7a;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            max-width: 85%;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-content h2 {
+            color: #263859;
+        }
+
+        .modal-content p {
+            color: #555;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .cancel-btn {
+            background-color: #777;
+        }
+
+        .remove-btn {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Course Enrollment</h1>
+        <p>Manage Student Enrollments Using Neo4j Relationships</p>
+    </header>
+
+    <nav>
+        <a href="/">Dashboard</a>
+        <a href="/students">Students</a>
+        <a href="/courses">Courses</a>
+        <a href="/enrollments">Enrollments</a>
+        <a href="/activities">Learning Activities</a>
+        <a href="/history">Learning History</a>
+    </nav>
+
+    <div class="container">
+
+        <div class="form-box">
+            <h2>Enroll Student in a Course</h2>
+
+            <form action="/add-enrollment" method="POST">
+
+                <label>Select Student</label>
+                <select name="student_id" required>
+                    <option value="">-- Select Student --</option>
+
+                    {% for student in students %}
+                    <option value="{{ student.student_id }}">
+                        {{ student.name }} (ID: {{ student.student_id }})
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Select Course</label>
+                <select name="course_id" required>
+                    <option value="">-- Select Course --</option>
+
+                    {% for course in courses %}
+                    <option value="{{ course.course_id }}">
+                        {{ course.course_name }} (ID: {{ course.course_id }})
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <button type="submit">Enroll Student</button>
+
+            </form>
+        </div>
+
+        <div class="table-box">
+            <h2>Current Enrollments</h2>
+
+            <table>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Course ID</th>
+                    <th>Course Name</th>
+                    <th>Action</th>
+                </tr>
+
+                {% for enrollment in enrollments %}
+                <tr>
+                    <td>{{ enrollment.student_id }}</td>
+                    <td>{{ enrollment.student_name }}</td>
+                    <td>{{ enrollment.course_id }}</td>
+                    <td>{{ enrollment.course_name }}</td>
+
+                    <td>
+                        <button type="button"
+                                onclick="openRemoveModal(
+                                    '{{ enrollment.student_id }}',
+                                    '{{ enrollment.course_id }}'
+                                )">
+                            Remove
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+    </div>
+
+<div id="removeModal" class="modal">
+    <div class="modal-content">
+
+        <h2>Remove Enrollment?</h2>
+
+        <p>
+            Are you sure you want to remove this student
+            from the selected course?
+        </p>
+
+        <p>The student and course records will not be deleted.</p>
+
+        <div class="modal-buttons">
+            <button type="button"
+                    class="cancel-btn"
+                    onclick="closeRemoveModal()">
+                Cancel
+            </button>
+
+            <form id="removeEnrollmentForm" method="POST">
+                <button type="submit" class="remove-btn">
+                    Yes, Remove
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function openRemoveModal(studentId, courseId) {
+        const form = document.getElementById("removeEnrollmentForm");
+
+        form.action = "/remove-enrollment/" + studentId + "/" + courseId;
+
+        document.getElementById("removeModal").style.display = "flex";
+    }
+
+    function closeRemoveModal() {
+        document.getElementById("removeModal").style.display = "none";
+    }
+</script>
+
+</body>
+</html>

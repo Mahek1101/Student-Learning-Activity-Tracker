@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student | Student Learning Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+        }
+
+        header {
+            background-color: #263859;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #354f7a;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 15px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 60%;
+            margin: 40px auto;
+        }
+
+        .form-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-box h2 {
+            color: #263859;
+        }
+
+        label {
+            display: block;
+            margin-top: 20px;
+            font-weight: bold;
+            color: #263859;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button, .cancel-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        button {
+            background-color: #263859;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #e5e7eb;
+            color: #263859;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Student Learning Activity Tracker</h1>
+        <p>Edit Student Information</p>
+    </header>
+
+    <nav>
+        <a href="/">Dashboard</a>
+        <a href="/students">Students</a>
+        <a href="/courses">Courses</a>
+        <a href="/enrollments">Enrollments</a>
+        <a href="/activities">Learning Activities</a>
+        <a href="/history">Learning History</a>
+    </nav>
+
+    <div class="container">
+        <div class="form-box">
+
+            <h2>Edit Student</h2>
+
+            <form action="/update-student/{{ student.student_id }}"
+                  method="POST">
+
+                <label>Student ID</label>
+                <input type="number"
+                       value="{{ student.student_id }}"
+                       readonly>
+
+                <label>Student Name</label>
+                <input type="text"
+                       name="name"
+                       value="{{ student.name }}"
+                       required>
+
+                <label>Email Address</label>
+                <input type="email"
+                       name="email"
+                       value="{{ student.email }}"
+                       required>
+
+                <div class="buttons">
+                    <button type="submit">Save Changes</button>
+
+                    <a href="/students" class="cancel-btn">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>

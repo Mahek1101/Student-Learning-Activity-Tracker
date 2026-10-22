@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Learning Activity | Student Learning Tracker</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+        }
+
+        header {
+            background-color: #263859;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #354f7a;
+            padding: 15px;
+            text-align: center;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 15px;
+            font-weight: bold;
+        }
+
+        .container {
+            width: 70%;
+            max-width: 750px;
+            margin: 30px auto;
+        }
+
+        .form-box {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #263859;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            font-weight: bold;
+            color: #263859;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        input[readonly] {
+            background-color: #eef1f5;
+        }
+
+        button {
+            background-color: #263859;
+            color: white;
+            padding: 12px 20px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #354f7a;
+        }
+
+        .cancel-btn {
+            display: inline-block;
+            background-color: #777;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Edit Learning Activity</h1>
+        <p>Update Student Learning Activity Information</p>
+    </header>
+
+    <nav>
+        <a href="/">Dashboard</a>
+        <a href="/students">Students</a>
+        <a href="/courses">Courses</a>
+        <a href="/enrollments">Enrollments</a>
+        <a href="/activities">Learning Activities</a>
+        <a href="/history">Learning History</a>
+    </nav>
+
+    <div class="container">
+        <div class="form-box">
+
+            <h2>Update Activity Details</h2>
+
+            <form action="/update-activity/{{ activity.activity_id }}"
+                  method="POST">
+
+                <label>Activity ID</label>
+                <input type="number"
+                       name="activity_id"
+                       value="{{ activity.activity_id }}"
+                       readonly>
+
+                <label>Select Student</label>
+                <select name="student_id" required>
+                    {% for student in students %}
+                    <option value="{{ student.student_id }}"
+                        {% if student.student_id == activity.student_id %}
+                        selected
+                        {% endif %}>
+                        {{ student.name }} (ID: {{ student.student_id }})
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Select Course</label>
+                <select name="course_id" required>
+                    {% for course in courses %}
+                    <option value="{{ course.course_id }}"
+                        {% if course.course_id == activity.course_id %}
+                        selected
+                        {% endif %}>
+                        {{ course.course_name }} (ID: {{ course.course_id }})
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Activity Title</label>
+                <input type="text"
+                       name="title"
+                       value="{{ activity.title or '' }}"
+                       required>
+
+                <label>Activity Type</label>
+                <select name="activity_type" required>
+                    {% for type in ['Study', 'Assignment', 'Quiz', 'Project', 'Practice'] %}
+                    <option value="{{ type }}"
+                        {% if type == activity.activity_type %}
+                        selected
+                        {% endif %}>
+                        {{ type }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <label>Activity Date</label>
+                <input type="date"
+                       name="activity_date"
+                       value="{{ activity.activity_date or '' }}"
+                       required>
+
+                <label>Duration (Minutes)</label>
+                <input type="number"
+                       name="duration"
+                       value="{{ activity.duration or '' }}"
+                       min="1"
+                       required>
+
+                <label>Description</label>
+                <textarea name="description"
+                          rows="3">{{ activity.description or '' }}</textarea>
+
+                <button type="submit">Save Changes</button>
+
+                <a href="/activities" class="cancel-btn">Cancel</a>
+
+            </form>
+
+        </div>
+    </div>
+
+</body>
+</html>
