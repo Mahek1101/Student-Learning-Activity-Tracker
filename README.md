@@ -231,8 +231,13 @@ Execute the queries individually in the Neo4j Query interface.
 
 ## Project Structure
 
+## Project Structure
+
+```text
 project/
+│
 ├── app.py
+│
 ├── templates/
 │   ├── index.html
 │   ├── students.html
@@ -243,11 +248,13 @@ project/
 │   ├── activities.html
 │   ├── edit_activity.html
 │   └── history.html
+│
 ├── neo4j_setup.cypher
 ├── neo4j_queries.cypher
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
 
 ## Security Notes
 
