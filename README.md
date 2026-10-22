@@ -229,7 +229,6 @@ These queries allow you to:
 
 Execute the queries individually in the Neo4j Query interface.
 
-## Project Structure
 
 ## Project Structure
 
