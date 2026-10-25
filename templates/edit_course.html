@@ -116,8 +116,21 @@
 
             <h2>Edit Course</h2>
 
-            <form action="/update-course/{{ course.course_id }}"
-                  method="POST">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p style="color: #c0392b;
+                                    background-color: #fdecea;
+                                    padding: 12px;
+                                    border-radius: 5px;">
+                                {{ message }}
+                            </p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form action="/update-course/{{ course.course_id }}"
+                    method="POST">
 
                 <label>Course ID</label>
                 <input type="number"
@@ -126,16 +139,14 @@
 
                 <label>Course Name</label>
                 <input type="text"
-                       name="course_name"
-                       value="{{ course.course_name }}"
-                       required>
+                    name="course_name"
+                    value="{{ course.course_name }}">
 
                 <label>Credits</label>
                 <input type="number"
-                       name="credits"
-                       value="{{ course.credits }}"
-                       min="1"
-                       required>
+                    name="credits"
+                    value="{{ course.credits }}"
+                    required>
 
                 <div class="buttons">
                     <button type="submit">Save Changes</button>

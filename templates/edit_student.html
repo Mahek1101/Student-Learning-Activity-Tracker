@@ -112,8 +112,21 @@
 
             <h2>Edit Student</h2>
 
-            <form action="/update-student/{{ student.student_id }}"
-                  method="POST">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <p style="color: #c0392b;
+                                    background-color: #fdecea;
+                                    padding: 12px;
+                                    border-radius: 5px;">
+                                {{ message }}
+                            </p>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form action="/update-student/{{ student.student_id }}"
+                    method="POST">
 
                 <label>Student ID</label>
                 <input type="number"

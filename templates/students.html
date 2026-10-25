@@ -95,12 +95,21 @@
         <a href="/history">Learning History</a>
     </nav>
 
-    <div class="container">
+    <div class="form-box">
+        <h2>Add New Student</h2>
 
-        <div class="form-box">
-            <h2>Add New Student</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color: #c0392b; background-color: #fdecea;
+                            padding: 12px; border-radius: 5px;">
+                        {{ message }}
+                    </p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-            <form action="/add-student" method="POST">
+        <form action="/add-student" method="POST">
                 <input type="number" name="student_id"
                        placeholder="Student ID" required>
 

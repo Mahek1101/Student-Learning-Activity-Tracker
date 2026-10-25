@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from neo4j import GraphDatabase
 import os
 
 app = Flask(__name__)
+app.secret_key = "student_tracker_secret"
 
 # Neo4j database connection
 NEO4J_URI = "bolt://localhost:7687"
@@ -57,19 +58,49 @@ def students_page():
 
 @app.route("/add-student", methods=["POST"])
 def add_student():
-    student_id = int(request.form["student_id"])
+    student_id = request.form["student_id"]
     name = request.form["name"].strip()
     email = request.form["email"].strip()
 
+    # Check empty fields
+    if not student_id or not name or not email:
+        flash("All fields are required!")
+        return redirect(url_for("students_page"))
+
+    # Check student name
+    if not name.replace(" ", "").isalpha():
+        flash("Name should contain only letters!")
+        return redirect(url_for("students_page"))
+
+    # Check email
+    if "@" not in email or "." not in email.split("@")[-1]:
+        flash("Please enter a valid email!")
+        return redirect(url_for("students_page"))
+
+    student_id = int(student_id)
+
     with driver.session(database="neo4j") as session:
+
+        # Check duplicate student ID or email
+        existing = session.run("""
+            MATCH (s:Student)
+            WHERE s.student_id = $student_id
+               OR toLower(s.email) = toLower($email)
+            RETURN s
+        """, student_id=student_id, email=email).single()
+
+        if existing:
+            flash("Student ID or email already exists!")
+            return redirect(url_for("students_page"))
+
+        # Add new student
         session.run("""
-            MERGE (s:Student {student_id: $student_id})
-            SET s.name = $name,
-                s.email = $email
-        """,
-        student_id=student_id,
-        name=name,
-        email=email).consume()
+            CREATE (s:Student {
+                student_id: $student_id,
+                name: $name,
+                email: $email
+            })
+        """, student_id=student_id, name=name, email=email).consume()
 
     return redirect(url_for("students_page"))
 
@@ -120,7 +151,36 @@ def update_student(student_id):
     name = request.form["name"].strip()
     email = request.form["email"].strip()
 
+    # Check empty fields
+    if not name or not email:
+        flash("All fields are required!")
+        return redirect(url_for("edit_student", student_id=student_id))
+
+    # Check student name
+    if not name.replace(" ", "").isalpha():
+        flash("Name should contain only letters!")
+        return redirect(url_for("edit_student", student_id=student_id))
+
+    # Check email
+    if "@" not in email or "." not in email.split("@")[-1]:
+        flash("Please enter a valid email!")
+        return redirect(url_for("edit_student", student_id=student_id))
+
     with driver.session(database="neo4j") as session:
+
+        # Check if email belongs to another student
+        existing = session.run("""
+            MATCH (s:Student)
+            WHERE toLower(s.email) = toLower($email)
+              AND s.student_id <> $student_id
+            RETURN s
+        """, email=email, student_id=student_id).single()
+
+        if existing:
+            flash("This email is already used by another student!")
+            return redirect(url_for("edit_student", student_id=student_id))
+
+        # Update student information
         session.run("""
             MATCH (s:Student {student_id: $student_id})
             SET s.name = $name,
@@ -165,15 +225,42 @@ def courses_page():
 @app.route("/add-course", methods=["POST"])
 def add_course():
 
-    course_id = int(request.form["course_id"])
+    course_id = request.form["course_id"]
     course_name = request.form["course_name"].strip()
-    credits = int(request.form["credits"])
+    credits = request.form["credits"]
+
+    # Check empty fields
+    if not course_id or not course_name or not credits:
+        flash("All fields are required!")
+        return redirect(url_for("courses_page"))
+
+    # Check credits
+    if int(credits) <= 0:
+        flash("Credits must be greater than 0!")
+        return redirect(url_for("courses_page"))
+
+    course_id = int(course_id)
+    credits = int(credits)
 
     with driver.session(database="neo4j") as session:
+
+        # Check duplicate Course ID
+        existing = session.run("""
+            MATCH (c:Course {course_id: $course_id})
+            RETURN c
+        """, course_id=course_id).single()
+
+        if existing:
+            flash("Course ID already exists!")
+            return redirect(url_for("courses_page"))
+
+        # Add new course
         session.run("""
-            MERGE (c:Course {course_id: $course_id})
-            SET c.course_name = $course_name,
-                c.credits = $credits
+            CREATE (c:Course {
+                course_id: $course_id,
+                course_name: $course_name,
+                credits: $credits
+            })
         """,
         course_id=course_id,
         course_name=course_name,
@@ -216,8 +303,25 @@ def edit_course(course_id):
 def update_course(course_id):
 
     course_name = request.form["course_name"].strip()
-    credits = int(request.form["credits"])
+    credits = request.form["credits"].strip()
 
+    # Check empty fields
+    if not course_name or not credits:
+        flash("All fields are required!")
+        return redirect(url_for("edit_course", course_id=course_id))
+
+    # Check credits
+    try:
+        credits = int(credits)
+    except ValueError:
+        flash("Credits must be a whole number!")
+        return redirect(url_for("edit_course", course_id=course_id))
+
+    if credits <= 0:
+        flash("Credits must be greater than 0!")
+        return redirect(url_for("edit_course", course_id=course_id))
+
+    # Update course information
     with driver.session(database="neo4j") as session:
         session.run("""
             MATCH (c:Course {course_id: $course_id})
@@ -352,6 +456,16 @@ def activities_page():
 @app.route("/add-activity", methods=["POST"])
 def add_activity():
 
+    # Check required fields
+    required = ["activity_id", "student_id", "course_id",
+            "title", "activity_type", "activity_date",
+            "duration", "description"]
+
+    for field in required:
+        if not request.form.get(field, "").strip():
+            flash("All required fields must be filled!")
+            return redirect(url_for("activities_page"))
+
     activity_id = int(request.form["activity_id"])
     student_id = int(request.form["student_id"])
     course_id = int(request.form["course_id"])
@@ -361,6 +475,11 @@ def add_activity():
     activity_date = request.form["activity_date"]
     duration = int(request.form["duration"])
     description = request.form["description"].strip()
+
+    # Check duration
+    if duration <= 0:
+        flash("Duration must be greater than 0!")
+        return redirect(url_for("activities_page"))
 
     with driver.session(database="neo4j") as session:
 
@@ -469,11 +588,40 @@ def update_activity(activity_id):
     title = request.form["title"].strip()
     activity_type = request.form["activity_type"]
     activity_date = request.form["activity_date"]
-    duration = int(request.form["duration"])
+    duration_text = request.form.get("duration", "").strip()
     description = request.form["description"].strip()
+
+    # Check required fields
+    if not title or not activity_type or not activity_date or not duration_text or not description:
+        flash("All required fields must be filled!")
+        return redirect(url_for("edit_activity", activity_id=activity_id))
+
+    # Check duration
+    try:
+        duration = int(duration_text)
+    except ValueError:
+        flash("Duration must be a whole number!")
+        return redirect(url_for("edit_activity", activity_id=activity_id))
+
+    if duration <= 0:
+        flash("Duration must be greater than 0!")
+        return redirect(url_for("edit_activity", activity_id=activity_id))
 
     with driver.session(database="neo4j") as session:
 
+        # Check student enrollment
+        enrolled = session.run("""
+            MATCH (s:Student {student_id: $student_id})
+                  -[:ENROLLED_IN]->
+                  (c:Course {course_id: $course_id})
+            RETURN s
+        """, student_id=student_id, course_id=course_id).single()
+
+        if not enrolled:
+            flash("Student must be enrolled in the selected course!")
+            return redirect(url_for("edit_activity", activity_id=activity_id))
+
+        # Update activity
         session.run("""
             MATCH (a:LearningActivity {activity_id: $activity_id})
             MATCH (s:Student {student_id: $student_id})

@@ -173,6 +173,19 @@
         <div class="form-box">
             <h2>Add Learning Activity</h2>
 
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <p style="color: #c0392b;
+                                background-color: #fdecea;
+                                padding: 12px;
+                                border-radius: 5px;">
+                            {{ message }}
+                        </p>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
             <form action="/add-activity" method="POST">
 
                 <label>Activity ID</label>
@@ -202,8 +215,7 @@
                 <label>Activity Title</label>
                 <input type="text"
                        name="title"
-                       placeholder="Example: SQL Practice"
-                       required>
+                       placeholder="Example: SQL Practice">
 
                 <label>Activity Type</label>
                 <select name="activity_type" required>
@@ -222,10 +234,8 @@
 
                 <label>Duration (Minutes)</label>
                 <input type="number"
-                       name="duration"
-                       placeholder="Example: 60"
-                       min="1"
-                       required>
+                    name="duration"
+                    placeholder="Example: 60">
 
                 <label>Description</label>
                 <textarea name="description"
