@@ -77,6 +77,9 @@ MATCH (s:Student {student_id: 1})
 MATCH (c:Course {course_id: 102})
 MERGE (s)-[:ENROLLED_IN]->(c);
 
+MATCH (s:Student {student_id: 1})
+MATCH (c:Course {course_id: 105})
+MERGE (s)-[:ENROLLED_IN]->(c);
 
 // John Smith
 MATCH (s:Student {student_id: 2})
@@ -154,11 +157,11 @@ SET a.title = 'Network Configuration',
     a.description = 'Configured computer networks.';
 
 MERGE (a:LearningActivity {activity_id: 205})
-SET a.title = 'Cybersecurity Study',
-    a.activity_type = 'Study',
+SET a.title = 'Stack and Queue Practice',
+    a.activity_type = 'Practice',
     a.activity_date = '2026-10-18',
-    a.duration = 60,
-    a.description = 'Studied cybersecurity fundamentals.';
+    a.duration = 70,
+    a.description = 'Practiced stack and queue operations.';
 
 MERGE (a:LearningActivity {activity_id: 206})
 SET a.title = 'Network Security Basics',
@@ -194,9 +197,9 @@ MATCH (c:Course {course_id: 104})
 MERGE (s)-[:COMPLETED]->(a)
 MERGE (a)-[:FOR_COURSE]->(c);
 
-MATCH (s:Student {student_id: 5})
+MATCH (s:Student {student_id: 6})
 MATCH (a:LearningActivity {activity_id: 205})
-MATCH (c:Course {course_id: 102})
+MATCH (c:Course {course_id: 105})
 MERGE (s)-[:COMPLETED]->(a)
 MERGE (a)-[:FOR_COURSE]->(c);
 
