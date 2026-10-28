@@ -101,13 +101,13 @@ Install the following software:
 Clone the GitHub repository:
 
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/Mahek1101/Student-Learning-Activity-Tracker.git
 ```
 
 Navigate to the project directory:
 
 ```bash
-cd <YOUR_REPOSITORY_FOLDER>
+cd Student-Learning-Activity-Tracker
 ```
 
 ### Step 2: Install and Configure Neo4j
@@ -139,9 +139,11 @@ The setup script creates:
 - 6 Student nodes
 - 5 Course nodes
 - 6 LearningActivity nodes
-- 11 ENROLLED_IN relationships
+- 12 ENROLLED_IN relationships
 - 6 COMPLETED relationships
 - 6 FOR_COURSE relationships
+
+Total: 17 nodes and 24 relationships.
 
 Run the setup script on a fresh database to avoid modifying existing data.
 
@@ -198,10 +200,11 @@ In the terminal, execute:
 ```bash
 python app.py
 ```
+Open your web browser and enter:
 
-Open the application in your browser:
+`http://127.0.0.1:5000/`
 
-http://127.0.0.1:5000/
+Note: This is a local application. The Flask server and Neo4j database must be running on your computer to access it.
 
 ### Step 8: Test the Application
 
@@ -236,7 +239,6 @@ Execute the queries individually in the Neo4j Query interface.
 project/
 │
 ├── app.py
-│
 ├── templates/
 │   ├── index.html
 │   ├── students.html
@@ -251,6 +253,8 @@ project/
 ├── neo4j_setup.cypher
 ├── neo4j_queries.cypher
 ├── requirements.txt
+├── Project_Report.pdf
+├── Project_Presentation.pptx
 ├── .gitignore
 └── README.md
 ```
