@@ -16,17 +16,17 @@ The application also provides a dashboard and a learning history feature to trac
 
 ## Technologies Used
 
-Component               Technology
-
-Programming Language    Python
-Backend Framework       Flask
-Frontend                HTML, CSS, JavaScript
-Database                Neo4j
-Query Language          Cypher
-Database Driver         Neo4j Python Driver
-Code Editor             Visual Studio Code
-Database Management     Neo4j Desktop
-Version Control         Git and GitHub
+| Component | Technology |
+|---|---|
+| Programming Language | Python |
+| Backend Framework | Flask |
+| Frontend | HTML, CSS, JavaScript |
+| Database | Neo4j |
+| Query Language | Cypher |
+| Database Driver | Neo4j Python Driver |
+| Code Editor | Visual Studio Code |
+| Database Management | Neo4j Desktop |
+| Version Control | Git and GitHub |
 
 ## Project Features
 
@@ -255,6 +255,10 @@ project/
 ├── requirements.txt
 ├── Project_Report.pdf
 ├── Project_Presentation.pptx
+├── Student_Learning_Tracker_Project_Report.docx
+├── Neo4j_initial_graph.png
+├── visualisation.png
+├── visualisation1.png
 ├── .gitignore
 └── README.md
 ```
